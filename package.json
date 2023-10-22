@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts"
+  },
+  "dependencies": {
+    "hono": "^3.7.2",
+    "slack-cloudflare-workers": "^0.5.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231016.0",
+    "prettier": "^3.0.3",
+    "wrangler": "^3.9.0"
+  }
+}
