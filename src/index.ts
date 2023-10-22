@@ -16,15 +16,17 @@ const parseMessage = ({
   return `*<${url}|${title}>*`;
 };
 
-app.get("/api/slack", async (c) => {
-  const { env } = c;
+const mainFunction = async (env: Bindings) => {
   const feedItems = await fetchFeedlyMixes(env);
   const postMessage = slackMessenger(env as SlackEdgeAppEnv);
 
   for (const item of feedItems) {
     await postMessage(parseMessage(item));
   }
+};
 
+
+app.get("/api/slack", async (c) => {
   return c.text(String("ok"), 200);
 });
 
@@ -33,15 +35,7 @@ const scheduled: ExportedHandlerScheduledHandler<Bindings> = async (
   env,
   ctx,
 ) => {
-  const func = async () => {
-    const feedItems = await fetchFeedlyMixes(env);
-    const postMessage = slackMessenger(env as SlackEdgeAppEnv);
-
-    for (const item of feedItems) {
-      await postMessage(parseMessage(item));
-    }
-  };
-  ctx.waitUntil(func());
+  ctx.waitUntil(mainFunction(env));
 };
 
 export default {
