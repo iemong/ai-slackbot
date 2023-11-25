@@ -40,13 +40,29 @@ type Response = {
   items: Item[];
 };
 export const fetchFeedlyMixes = async <T extends Bindings>(env: T) => {
+  const accessToken = await fetch("https://cloud.feedly.com/v3/auth/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      client_id: "feedlydev",
+      client_secret: "feedlydev",
+      grant_type: "refresh_token",
+      refresh_token: env.FEEDLY_REFRESH_TOKEN,
+    }),
+  }).then(async (res) => {
+    const json = await res.json<{ access_token: string }>();
+    return json.access_token;
+  });
+
   const feedlyStreamId = `${encodeURIComponent(
     "user/f976596c-2e5d-4c61-bddd-e88241c5ecd0/category/global.all",
   )}&count=10&hours=24&unreadOnly=true`;
   const apiPath = `https://cloud.feedly.com/v3/mixes/contents?streamId=${feedlyStreamId}`;
 
   const headers = new Headers();
-  headers.append("Authorization", `OAuth ${env.FEEDLY_ACCESS_TOKEN}`);
+  headers.append("Authorization", `OAuth ${accessToken}`);
 
   const feedlyResponse = await fetch(apiPath, {
     method: "GET",
